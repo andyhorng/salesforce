@@ -68,12 +68,11 @@
   [method url token & [params]]
   (let [base-url (:instance_url token)
         full-url (str base-url url)
-        resp (try (http/request
-                   (merge (or params {})
-                          {:method method
-                           :url full-url
-                           :headers {"Authorization" (str "Bearer " (:access_token token))}}))  
-              (catch Exception e (ex-data e)))] 
+        resp (http/request
+               (merge (or params {})
+                      {:method method
+                       :url full-url
+                       :headers {"Authorization" (str "Bearer " (:access_token token))}}))]  
     (some-> (get-in resp [:headers "sforce-limit-info"]) ;; Record limit info in atom
         (parse-limit-info)
         ((partial reset! limit-info)))
