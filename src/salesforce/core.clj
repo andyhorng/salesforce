@@ -211,6 +211,14 @@
     (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier)
     token))
 
+
+(defn so->batch [subrequests token] 
+  (let [params {:body (json/generate-string subrequests) 
+                :content-type :json}]
+    (request :post
+             (format "/services/data/v%s/composite/batch" @+version+)
+             token params)))
+
 (comment
   (so->delete "Account" "001i0000008Ge2OAAS" auth))
 
