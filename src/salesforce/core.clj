@@ -31,17 +31,17 @@
    - security-token TOKEN
    - login-host HOSTNAME (default login.salesforce.com"
   [{:keys [client-id client-secret username password security-token login-host]}]
-     (let [hostname (or login-host "login.salesforce.com")
-           auth-url (format "https://%s/services/oauth2/token" hostname)
-           params {:grant_type "password"
-                   :client_id client-id
-                   :client_secret client-secret
-                   :username username
-                   :password (str password security-token)
-                   :format "json"}
-           resp (http/post auth-url {:form-params params})]
-       (-> (:body resp)
-           (json/decode true))))
+  (let [hostname (or login-host "login.salesforce.com")
+        auth-url (format "https://%s/services/oauth2/token" hostname)
+        params {:grant_type "password"
+                :client_id client-id
+                :client_secret client-secret
+                :username username
+                :password (str password security-token)
+                :format "json"}
+        resp (http/post auth-url {:form-params params})]
+    (-> (:body resp)
+        (json/decode true))))
 
 (def ^:private limit-info (atom {}))
 
@@ -87,7 +87,7 @@
     (with-meta
       (request method url token params)
       {:method method :url url :token token})
-  (catch Exception e (.toString e))))
+   (catch Exception e (.toString e))))
 
 ;; Salesforce API version information
 
@@ -147,18 +147,18 @@
   "Fetch a single SObject or passing in a vector of attributes
    return a subset of the data"
   ([sobject identifier fields token]
-     (when (or (seq? fields) (vector? fields))
-       (let [params (->> (into [] (interpose "," fields))
-                         (str/join)
-                         (conj ["?fields="])
-                         (apply str))
-             uri (format "/services/data/v%s/sobjects/%s/%s%s"
-                   @+version+ sobject identifier params)
-             response (request :get uri token)]
-         (dissoc response :attributes))))
+   (when (or (seq? fields) (vector? fields))
+     (let [params (->> (into [] (interpose "," fields))
+                       (str/join)
+                       (conj ["?fields="])
+                       (apply str))
+           uri (format "/services/data/v%s/sobjects/%s/%s%s"
+                 @+version+ sobject identifier params)
+           response (request :get uri token)]
+       (dissoc response :attributes))))
   ([sobject identifier token]
-    (request :get
-     (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier) token)))
+   (request :get
+    (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier) token)))
 
 (comment
   ;; Fetch all the info
@@ -179,8 +179,8 @@
   "Create a new record"
   [sobject record token]
   (let [params
-    { :form-params record
-      :content-type :json }]
+        { :form-params record
+          :content-type :json}]
     (request :post
       (format "/services/data/v%s/sobjects/%s/" @+version+ sobject) token params)))
 
@@ -195,11 +195,11 @@
    - token your api auth info"
   [sobject identifier record token]
   (let [params
-    { :body (json/generate-string record)
-      :content-type :json }]
+        {:body (json/generate-string record)
+         :content-type :json}]
     (request :patch
-      (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier) 
-      token params)))
+             (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier) 
+             token params)))
 
 (defn so->delete
   "Delete a record
