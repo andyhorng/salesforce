@@ -214,10 +214,15 @@
 
 (defn so->batch [subrequests token] 
   (let [params {:body (json/generate-string subrequests) 
-                :content-type :json}]
-    (request :post
-             (format "/services/data/v%s/composite/batch" @+version+)
-             token params)))
+                :content-type :json}
+        resp (request :post
+                      (format "/services/data/v%s/composite/batch" @+version+)
+                      token params)]
+
+    (when (true? (:hasErrors resp))
+      (throw (ex-info "Some operation in batch is failed"
+              {:status 400
+               :resp resp})))))
 
 (comment
   (so->delete "Account" "001i0000008Ge2OAAS" auth))
