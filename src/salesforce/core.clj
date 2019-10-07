@@ -219,10 +219,11 @@
                       (format "/services/data/v%s/composite/batch" @+version+)
                       token params)]
 
-    (when (true? (:hasErrors resp))
+    (if (true? (:hasErrors resp))
       (throw (ex-info "Some operation in batch is failed"
               {:status 400
-               :resp resp})))))
+               :resp resp}))
+      resp)))
 
 (comment
   (so->delete "Account" "001i0000008Ge2OAAS" auth))
