@@ -211,6 +211,8 @@
     (format "/services/data/v%s/sobjects/%s/%s" @+version+ sobject identifier)
     token))
 
+(comment
+  (so->delete "Account" "001i0000008Ge2OAAS" auth))
 
 (defn so->batch [subrequests token] 
   (let [params {:body (json/generate-string subrequests) 
@@ -224,9 +226,6 @@
               {:status 400
                :resp resp}))
       resp)))
-
-(comment
-  (so->delete "Account" "001i0000008Ge2OAAS" auth))
 
 (defn so->flow
   "Invoke a flow (see: https://developer.salesforce.com/docs/atlas.en-us.salesforce_vpm_guide.meta/salesforce_vpm_guide/vpm_distribute_system_rest.htm)
