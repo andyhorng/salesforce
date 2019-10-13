@@ -72,7 +72,8 @@
                (merge (or params {})
                       {:method method
                        :url full-url
-                       :headers {"Authorization" (str "Bearer " (:access_token token))}}))]  
+                       :headers (merge (get params :headers {}) 
+                                       {"Authorization" (str "Bearer " (:access_token token))})}))]  
     (some-> (get-in resp [:headers "sforce-limit-info"]) ;; Record limit info in atom
         (parse-limit-info)
         ((partial reset! limit-info)))
@@ -226,6 +227,27 @@
               {:status 400
                :resp resp}))
       resp)))
+
+
+(defn so->composite [reqs token & {:keys [atomic method] 
+                                   :or {atomic true method :post}}]
+  (let [params {:headers {:Content-Type "application/json"}
+                :body (json/generate-string {:allOrNone atomic
+                                             :compositeRequest reqs})}
+
+        resp (request method
+                      (format "/services/data/v%s/composite" @+version+)
+                      token
+                      params)
+
+        status-codes (map (fn [subresp] (get subresp :httpStatusCode))
+                          (get resp :compositeResponse))]
+
+    (if (some false? (map (fn [code] (and (>= code 200) (< code 300))) 
+                          status-codes))
+      (throw (ex-info "Some operation is failed" {:status 400 :resp resp}))
+      resp)))
+
 
 (defn so->flow
   "Invoke a flow (see: https://developer.salesforce.com/docs/atlas.en-us.salesforce_vpm_guide.meta/salesforce_vpm_guide/vpm_distribute_system_rest.htm)
